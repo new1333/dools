@@ -1,0 +1,1 @@
+export { registerKillCommand } from './kill';
