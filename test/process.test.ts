@@ -24,6 +24,7 @@ describe("process utils", () => {
   let findPidsByPort: (port: number) => Promise<import("../src/types/index.js").ProcessInfo[]>;
   let killPid: (pid: number) => Promise<void>;
   let killProcessByPort: (port: number) => Promise<import("../src/types/index.js").KillResult[]>;
+  let whichCommand: (command: string) => Promise<string | null>;
   let getAdapter: () => import("../src/types/index.js").PlatformAdapter;
   let isWindows: ReturnType<typeof vi.fn>;
 
@@ -36,6 +37,7 @@ describe("process utils", () => {
     findPidsByPort = processMod.findPidsByPort;
     killPid = processMod.killPid;
     killProcessByPort = processMod.killProcessByPort;
+    whichCommand = processMod.whichCommand;
     getAdapter = processMod.getAdapter;
   });
 
@@ -201,6 +203,45 @@ describe("process utils", () => {
 
       const results = await killProcessByPort(3000);
       expect(results).toEqual([]);
+    });
+  });
+
+  describe("whichCommand", () => {
+    it("finds command on Windows with where", async () => {
+      isWindows.mockReturnValue(true);
+      reply(null, { stdout: "C:\\Program Files\\node\\node.exe\n", stderr: "" });
+
+      const result = await whichCommand("node");
+      expect(result).toBe("C:\\Program Files\\node\\node.exe");
+      expect(mockExec).toHaveBeenCalledWith("where node", expect.any(Function));
+    });
+
+    it("finds command on Unix with which", async () => {
+      isWindows.mockReturnValue(false);
+      reply(null, { stdout: "/usr/local/bin/node\n", stderr: "" });
+
+      const result = await whichCommand("node");
+      expect(result).toBe("/usr/local/bin/node");
+      expect(mockExec).toHaveBeenCalledWith("which node", expect.any(Function));
+    });
+
+    it("returns first match when multiple results", async () => {
+      isWindows.mockReturnValue(false);
+      reply(null, {
+        stdout: "/usr/local/bin/node\n/usr/bin/node\n",
+        stderr: "",
+      });
+
+      const result = await whichCommand("node");
+      expect(result).toBe("/usr/local/bin/node");
+    });
+
+    it("returns null when command not found", async () => {
+      isWindows.mockReturnValue(false);
+      reply(new Error("not found"), { stdout: "", stderr: "" });
+
+      const result = await whichCommand("nonexistent-command");
+      expect(result).toBeNull();
     });
   });
 });

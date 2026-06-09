@@ -33,6 +33,16 @@ const windowsAdapter: PlatformAdapter = {
   async killPid(pid: number): Promise<void> {
     await execAsync(`taskkill /PID ${pid} /F`);
   },
+
+  async which(command: string): Promise<string | null> {
+    try {
+      const { stdout } = await execAsync(`where ${command}`);
+      const first = stdout.trim().split('\n')[0]?.trim();
+      return first || null;
+    } catch {
+      return null;
+    }
+  },
 };
 
 const unixAdapter: PlatformAdapter = {
@@ -54,6 +64,16 @@ const unixAdapter: PlatformAdapter = {
 
   async killPid(pid: number): Promise<void> {
     await execAsync(`kill -9 ${pid}`);
+  },
+
+  async which(command: string): Promise<string | null> {
+    try {
+      const { stdout } = await execAsync(`which ${command}`);
+      const first = stdout.trim().split('\n')[0]?.trim();
+      return first || null;
+    } catch {
+      return null;
+    }
   },
 };
 
@@ -84,4 +104,8 @@ export async function killProcessByPort(port: number): Promise<KillResult[]> {
   }
 
   return results;
+}
+
+export async function whichCommand(command: string): Promise<string | null> {
+  return getAdapter().which(command);
 }

@@ -1,7 +1,7 @@
 declare const PKG_VERSION: string;
 
 import { Command } from 'commander';
-import { findPidsByPort, killPid } from './lib';
+import { findPidsByPort, killPid, whichCommand } from './lib';
 
 const program = new Command();
 
@@ -42,6 +42,20 @@ program
         console.error(`Failed to kill process ${pid}: ${message}`);
       }
     }
+  });
+
+program
+  .command('which <command>')
+  .description('Find the location of a command')
+  .action(async (command: string) => {
+    const path = await whichCommand(command);
+
+    if (!path) {
+      console.error(`Command not found: ${command}`);
+      process.exit(1);
+    }
+
+    console.log(path);
   });
 
 program.parse();
