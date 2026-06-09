@@ -23,6 +23,8 @@
   "scripts": {
     "build": "tsup",
     "dev": "tsup --watch",
+    "test": "vitest run",
+    "test:watch": "vitest",
     "release": "release-it"
   },
   "keywords": [
@@ -42,6 +44,7 @@
     "@types/node": "^25.5.0",
     "release-it": "^19.2.4",
     "tsup": "^8.5.1",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "vitest": "^4.1.8"
   }
 }
