@@ -1,7 +1,7 @@
 {
   "name": "dools",
-  "version": "0.2.0",
-  "description": "A CLI tool to kill processes by port",
+  "version": "0.3.0",
+  "description": "A collection of development utility tools",
   "type": "module",
   "repository": {
     "type": "git",
@@ -9,6 +9,12 @@
   },
   "bin": {
     "dools": "./bin/dools.js"
+  },
+  "exports": {
+    ".": {
+      "import": "./dist/lib.js",
+      "types": "./dist/lib.d.ts"
+    }
   },
   "files": [
     "bin",

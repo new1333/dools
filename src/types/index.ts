@@ -10,3 +10,8 @@ export interface KillResult {
 }
 
 export type Platform = 'win32' | 'darwin' | 'linux';
+
+export interface PlatformAdapter {
+  findPidsByPort(port: number): Promise<ProcessInfo[]>;
+  killPid(pid: number): Promise<void>;
+}
