@@ -16,6 +16,12 @@ Kill a process occupying a port:
 dools kill 3000
 ```
 
+Kill processes on multiple ports at once:
+
+```bash
+dools kill 3000 3001 3002
+```
+
 Or use without installing:
 
 ```bash

@@ -54,6 +54,30 @@ describe("CLI", () => {
     expect(stdout).toContain("No process found using port 59999");
   });
 
+  it("handles multiple ports at once", async () => {
+    const { stdout } = await execFileAsync(bin, [
+      ...binArgs,
+      "kill",
+      "59998",
+      "59997",
+      "59998", // duplicate should be de-duplicated
+    ]);
+    expect(stdout).toContain("No process found using port 59998");
+    expect(stdout).toContain("No process found using port 59997");
+    // The de-duplicated port should only appear once
+    expect(stdout.match(/No process found using port 59998/g)?.length).toBe(1);
+  });
+
+  it("rejects if any of multiple ports is invalid", async () => {
+    try {
+      await execFileAsync(bin, [...binArgs, "kill", "3000", "abc"]);
+      expect.unreachable("Should have exited with error");
+    } catch (err: any) {
+      expect(err.stderr).toContain("Invalid port number");
+      expect(err.code).not.toBe(0);
+    }
+  });
+
   it("which finds node", async () => {
     const { stdout } = await execFileAsync(bin, [...binArgs, "which", "node"]);
     expect(stdout.trim()).toContain("node");
